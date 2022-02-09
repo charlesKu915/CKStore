@@ -12,8 +12,13 @@ import CloudKit
 public class StorageContainer {
     
     public struct CoreDataSettings {
-        let definitionUrl: URL
-        let name: String
+        public let definitionUrl: URL
+        public let name: String
+        
+        public init(definitionUrl: URL, name: String) {
+            self.definitionUrl = definitionUrl
+            self.name = name
+        }
     }
 
     public private(set) lazy var local: NSPersistentContainer = {
