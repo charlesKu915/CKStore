@@ -11,7 +11,7 @@ extension UserDefaults: KeyValueStore { }
 
 public class LocalDeviceStore: DeviceStore {
     
-    static let standard = LocalDeviceStore(store: .standard)
+    public static let standard = LocalDeviceStore(store: .standard)
         
     public let store: UserDefaults
     
