@@ -7,7 +7,7 @@ let package = Package(
     name: "CKStore",
     platforms: [
         .macOS(.v10_15),
-        .iOS(.v13),
+        .iOS(.v15),
         .tvOS(.v13)
     ],
     products: [

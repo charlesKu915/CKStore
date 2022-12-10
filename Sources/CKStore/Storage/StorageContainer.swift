@@ -48,7 +48,7 @@ public class StorageContainer {
         return currentFolder.appendingPathComponent("model.sqlite")
     }
     
-    public private(set) var cloud: CKContainer
+    public private(set) var cloud: CKContainer!
     
     public let identifier: String
     
