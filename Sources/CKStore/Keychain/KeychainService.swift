@@ -16,28 +16,20 @@ public final class KeychainService {
     public static func saveSecretObject<Input: Codable>(
         secret: Input,
         for account: String,
-        on server: String? = nil,
-        by application: String? = nil
+        on server: String
     ) throws {
         let jsonEncoder = JSONEncoder()
         let credentialData = try jsonEncoder.encode(secret)
     
         if let _: Input = retriveSecretObject(for: account, on: server) {
-            var query: [String: Any] = [
+            let query: [String: Any] = [
                 kSecClass as String: kSecClassInternetPassword,
-                kSecAttrAccount as String: account
+                kSecAttrAccount as String: account,
+                kSecAttrServer as String: server
             ]
-            
-            if let server = server {
-                query[kSecAttrServer as String] = server
-            }
-            
-            if let application = application {
-                query[kSecAttrApplicationTag as String] = application
-            }
-            
+                        
             let attributes: [String: Any] = [
-                kSecValueRef as String: credentialData
+                kSecValueData as String: credentialData
             ]
             
             
@@ -49,19 +41,12 @@ public final class KeychainService {
                 throw KeychainServiceError.unknown
             }
         } else {
-            var query: [String: Any] = [
+            let query: [String: Any] = [
                 kSecClass as String: kSecClassInternetPassword,
                 kSecAttrAccount as String: account,
-                kSecValueData as String: credentialData
+                kSecValueData as String: credentialData,
+                kSecAttrServer as String: server
             ]
-            
-            if let server = server {
-                query[kSecAttrServer as String] = server
-            }
-            
-            if let application = application {
-                query[kSecAttrApplicationTag as String] = application
-            }
             
             let status = SecItemAdd(query as CFDictionary, nil)
             guard status == errSecSuccess else {
@@ -72,23 +57,15 @@ public final class KeychainService {
     
     public static func retriveSecretObject<Output: Codable>(
         for account: String,
-        on server: String?,
-        by application: String? = nil
+        on server: String
     ) -> Output? {
-        var query: [String: Any] = [
+        let query: [String: Any] = [
             kSecClass as String: kSecClassInternetPassword,
             kSecAttrAccount as String: account,
             kSecMatchLimit as String: kSecMatchLimitOne,
-            kSecReturnData as String: kCFBooleanTrue!
+            kSecReturnData as String: kCFBooleanTrue!,
+            kSecAttrServer as String: server
         ]
-        
-        if let server = server {
-            query[kSecAttrServer as String] = server
-        }
-        
-        if let application = application {
-            query[kSecAttrApplicationTag as String] = application
-        }
     
         var retrivedData: AnyObject? = nil
         let _ = SecItemCopyMatching(query as CFDictionary, &retrivedData)
