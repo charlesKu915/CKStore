@@ -22,7 +22,7 @@ public final class KeychainService {
         let credentialData = try jsonEncoder.encode(secret)
     
         if let _: Input = retriveSecretObject(for: account, on: server) {
-            var query: [String: Any] = [
+            let query: [String: Any] = [
                 kSecClass as String: kSecClassInternetPassword,
                 kSecAttrAccount as String: account,
                 kSecAttrServer as String: server
@@ -41,7 +41,7 @@ public final class KeychainService {
                 throw KeychainServiceError.unknown
             }
         } else {
-            var query: [String: Any] = [
+            let query: [String: Any] = [
                 kSecClass as String: kSecClassInternetPassword,
                 kSecAttrAccount as String: account,
                 kSecValueData as String: credentialData,
