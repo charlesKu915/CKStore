@@ -32,7 +32,6 @@ public final class KeychainService {
                 kSecValueData as String: credentialData
             ]
             
-            
             let status = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
             guard status != errSecItemNotFound else {
                 throw KeychainServiceError.unknown
@@ -75,6 +74,21 @@ public final class KeychainService {
         }
         let jsonDecoder = JSONDecoder()
         return try? jsonDecoder.decode(Output.self, from: data)
+    }
+    
+    public static func deleteSecretObject(
+        for account: String,
+        on server: String
+    ) throws {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassInternetPassword,
+            kSecAttrAccount as String: account,
+            kSecAttrServer as String: server
+        ]
+        let status = SecItemDelete(query as CFDictionary)
+        
+        guard let error = OSStatusGetError(status) else { return }
+        throw error
     }
     
 }

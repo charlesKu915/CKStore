@@ -38,7 +38,7 @@ public class StorageContainer {
         return container
     }()
 
-    private var localSqlLitePath: URL {
+    var localSqlLitePath: URL {
         guard let docUrl = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first else { fatalError() }
         let currentFolder = docUrl.appendingPathComponent(identifier, isDirectory: true)
 
@@ -62,5 +62,29 @@ public class StorageContainer {
         self.coreDataSettings = coreDataSettings
         self.cloud = CKContainer(identifier: identifier)
     }
+    
+    public func clear() throws {
+        guard let url = local.persistentStoreDescriptions.first?.url else { return }
+        let persistentStoreCoordinator = local.persistentStoreCoordinator
+        try persistentStoreCoordinator.destroyPersistentStore(at: url, ofType: NSSQLiteStoreType, options: nil)
+        try persistentStoreCoordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: nil)
+        try FileManager.default.removeItem(at: localSqlLitePath)
+    }
+    
+    private func loadPersistentContainer() -> NSPersistentContainer {
+        guard let model = NSManagedObjectModel(contentsOf: coreDataSettings.definitionUrl) else {
+            fatalError("Load Model failed")
+        }
 
+        let container = PersistentContainer(name: coreDataSettings.name, managedObjectModel:model)
+        container.persistentStoreDescriptions = [
+            NSPersistentStoreDescription(url: localSqlLitePath)
+        ]
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }
 }
